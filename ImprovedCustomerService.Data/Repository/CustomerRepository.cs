@@ -31,13 +31,8 @@ namespace ImprovedCustomerService.Data.Repository
 
         public CustomerResponseDto GetById(int customerId)
         {
-            using (var db = new CustomerServiceDbEntities())
-            {
-                var customer = db.Customers.SingleOrDefault(c => c.Id == customerId);
-                var customerDto = Mapper.Map<CustomerResponseDto>(customer);
-
-                return customerDto;
-            }
+            var customerDbo = GetCustomerById(customerId);
+            return Mapper.Map<CustomerResponseDto>(customerDbo);
         }
 
         private Customer GetCustomerById(int customerId)
