@@ -68,19 +68,9 @@ namespace ImprovedCustomerService.Data.Repository
 
         public int Create(CustomerSaveDto customerDto)
         {
-
-
-            using (var db = new CustomerServiceDbEntities())
-            {
-                var customerDbo = Mapper.Map<Customer>(customerDto);
-                if (customerDbo != null)
-                {
-                    db.Customers.Add(customerDbo);
-                    return db.SaveChanges();
-                }
-            }
-
-            return 0;
+            var customerDbo = Mapper.Map<Customer>(customerDto);
+            _context.Customers.Add(customerDbo);
+            return _context.SaveChanges();
         }
 
         /// <summary>
@@ -132,7 +122,6 @@ namespace ImprovedCustomerService.Data.Repository
                 }
 
                 _context.Entry(customerDbo).State = EntityState.Modified;
-                //_context.Customers.(customerDbo);
                 _context.SaveChanges();
             }
 
