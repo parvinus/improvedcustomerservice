@@ -11,9 +11,12 @@ namespace ImprovedCustomerService.Api.Controllers
     public class ContactsController : ApiController
     {
         [Route("GetAll")]
+        [HttpGet]
         public HttpResponseMessage GetAll()
         {
             return Request.CreateResponse(HttpStatusCode.OK, "success");
         }
+
+
     }
 }
