@@ -26,10 +26,11 @@ namespace ImprovedCustomerService.Data.Validation
 
         private bool ValidateId(int? customerId)
         {
-            using (var repo = new CustomerRepository())
-            {
-                return customerId != null && repo.GetById(customerId.Value) != null;
-            }
+            return true;
+            //using (var repo = new CustomerRepository())
+            //{
+            //    return customerId != null && repo.GetById(customerId.Value) != null;
+            //}
         }
     }
 }

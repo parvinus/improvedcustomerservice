@@ -96,8 +96,8 @@
       <DependentUpon>CustomerServiceDb.edmx</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Repository\CustomerRepository.cs" />
     <Compile Include="Repository\IRepository.cs" />
+    <Compile Include="Repository\Repository.cs" />
     <Compile Include="Validation\AddressDtoValidator.cs" />
     <Compile Include="Validation\CustomerSaveDtoValidator.cs" />
   </ItemGroup>

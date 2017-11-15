@@ -58,6 +58,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Filters\ValidateModelStateFilter.cs" />
     <Compile Include="Handlers\ResponseHandler.cs" />
     <Compile Include="Handlers\ResponseModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

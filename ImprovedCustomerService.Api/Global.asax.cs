@@ -1,4 +1,5 @@
 ﻿using System.Web.Http;
+using FluentValidation.WebApi;
 using ImprovedCustomerService.Data.Configuration;
 
 namespace ImprovedCustomerService.Api
@@ -7,8 +8,9 @@ namespace ImprovedCustomerService.Api
     {
         protected void Application_Start()
         {
-            GlobalConfiguration.Configure(WebApiConfig.Register);
             AutomapperConfiguration.Configure();
+            GlobalConfiguration.Configure(WebApiConfig.Register);
+            FluentValidationModelValidatorProvider.Configure(GlobalConfiguration.Configuration);
         }
     }
 }

@@ -41,7 +41,7 @@ namespace ImprovedCustomerService.Core.Handlers
 
         #region static methods
 
-        public static HttpResponseMessage GetResponse(HttpRequestMessage request, HttpStatusCode statusCode,
+        public static ResponseModel GetResponse(HttpRequestMessage request, HttpStatusCode statusCode,
             string message = "", IList<string> errors = null, object payload = null)
         {
             var responseModel = new ResponseModel
@@ -51,7 +51,7 @@ namespace ImprovedCustomerService.Core.Handlers
                 Result = payload
             };
 
-            return request.CreateResponse(statusCode, responseModel);
+            return responseModel;
         }
 
         #endregion

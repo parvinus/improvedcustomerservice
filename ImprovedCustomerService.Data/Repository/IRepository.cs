@@ -4,8 +4,16 @@ using ImprovedCustomerService.Data.Dto;
 
 namespace ImprovedCustomerService.Data.Repository
 {
-    public interface IRepository : IDisposable
+    public interface IRepository<TEntity> where TEntity : class
     {
-        IList<CustomerResponseDto> GetAll();
+        IEnumerable<TEntity> GetAll();
+
+        TEntity GetById(int customerId);
+
+        int Remove(int customerId);
+
+        void Create(CustomerSaveDto customerSaveDto);
+
+        void Update(CustomerSaveDto customerDto);
     }
 }
