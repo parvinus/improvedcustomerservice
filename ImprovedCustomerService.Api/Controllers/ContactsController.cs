@@ -10,13 +10,12 @@ namespace ImprovedCustomerService.Api.Controllers
     [RoutePrefix("api/Contacts")]
     public class ContactsController : ApiController
     {
-        [Route("GetAll")]
+
+        [Route("GetById")]
         [HttpGet]
-        public HttpResponseMessage GetAll()
+        public HttpResponseMessage GetById(int contactId)
         {
-            return Request.CreateResponse(HttpStatusCode.OK, "success");
+            return Request.CreateResponse(HttpStatusCode.OK, contactId);
         }
-
-
     }
 }

@@ -1,16 +1,8 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Net;
+﻿using System.Net;
 using System.Net.Http;
 using System.Web.Http;
-using AutoMapper;
-using ImprovedCustomerService.Core.Handlers;
-using ImprovedCustomerService.Core.Utility;
-using Ninject.Web.WebApi;
 using ImprovedCustomerService.Data.Dto;
 using ImprovedCustomerService.Services.CustomerService;
-using Newtonsoft.Json;
-using Ninject.Infrastructure.Language;
 
 namespace ImprovedCustomerService.Api.Controllers
 {
@@ -74,6 +66,9 @@ namespace ImprovedCustomerService.Api.Controllers
         [HttpPut]
         public HttpResponseMessage Update(CustomerSaveDto targetCustomer)
         {
+            if (!ModelState.IsValid)
+                return Request.CreateResponse();
+
             var payload = _service.Update(targetCustomer);
             var statusCode = (payload?.Errors?.Count ?? 0) > 0 ? HttpStatusCode.BadRequest : HttpStatusCode.OK;
             return Request.CreateResponse(statusCode, payload);
