@@ -69,6 +69,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ContactService\ContactService.cs" />
+    <Compile Include="ContactService\IContactService.cs" />
     <Compile Include="CustomerService\CustomerService.cs" />
     <Compile Include="CustomerService\ICustomerService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

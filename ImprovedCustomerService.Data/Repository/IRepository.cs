@@ -5,14 +5,14 @@ namespace ImprovedCustomerService.Data.Repository
 {
     public interface IRepository<TEntity> where TEntity : class
     {
-        IEnumerable<TEntity> GetAll();
+        TEntity GetById(object id);
 
-        TEntity GetById(int customerId);
+        void Remove(int id);
 
-        int Remove(int customerId);
+        void Create(TEntity entityToCreate);
 
-        void Create(CustomerSaveDto customerSaveDto);
+        void Update(TEntity entityToUpdate);
 
-        void Update(CustomerSaveDto customerDto);
+        int Save();
     }
 }

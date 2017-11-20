@@ -3,6 +3,7 @@ using System.Linq;
 using System.Web.Http.ModelBinding;
 using AutoMapper;
 using ImprovedCustomerService.Data.Dto;
+using ImprovedCustomerService.Data.Dto.Contacts;
 using ImprovedCustomerService.Data.Model;
 
 namespace ImprovedCustomerService.Data.Configuration
@@ -24,6 +25,12 @@ namespace ImprovedCustomerService.Data.Configuration
 
                 config.CreateMap<AddressDto, Address>();
                 config.CreateMap<Address, AddressDto>();
+
+                config.CreateMap<Contact, ContactSaveDto>();
+                config.CreateMap<ContactSaveDto, Contact>();
+
+                config.CreateMap<Contact, ContactResponseDto>();
+                config.CreateMap<ContactResponseDto, Contact>();
             });
         }
     }

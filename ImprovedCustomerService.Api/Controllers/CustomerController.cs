@@ -16,13 +16,6 @@ namespace ImprovedCustomerService.Api.Controllers
             _service = customerService;
         }
 
-        [Route("GetAll")]
-        [HttpGet]
-        public HttpResponseMessage GetAll()
-        {
-            return Request.CreateResponse(HttpStatusCode.OK, _service.GetAll());
-        }
-
         /// <summary>
         ///     searches the db for the customer matching the given id and returns it if possible
         /// </summary>

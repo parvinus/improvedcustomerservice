@@ -1,5 +1,6 @@
 using ImprovedCustomerService.Data.Model;
 using ImprovedCustomerService.Data.Repository;
+using ImprovedCustomerService.Services.ContactService;
 using ImprovedCustomerService.Services.CustomerService;
 
 [assembly: WebActivatorEx.PreApplicationStartMethod(typeof(ImprovedCustomerService.Api.App_Start.NinjectWebCommon), "Start")]
@@ -66,7 +67,10 @@ namespace ImprovedCustomerService.Api.App_Start
         private static void RegisterServices(IKernel kernel)
         {
             kernel.Bind<IRepository<Customer>>().To<Repository<Customer>>().InRequestScope();
+            kernel.Bind<IRepository<Contact>>().To<Repository<Contact>>().InRequestScope();
+
             kernel.Bind<ICustomerService>().To<CustomerService>().InRequestScope();
+            kernel.Bind<IContactService>().To<ContactService>().InRequestScope();
         }        
     }
 }

@@ -1,4 +1,6 @@
-﻿using FluentValidation.Attributes;
+﻿using System.Collections.Generic;
+using FluentValidation.Attributes;
+using ImprovedCustomerService.Data.Dto.Contacts;
 using ImprovedCustomerService.Data.Validation;
 
 namespace ImprovedCustomerService.Data.Dto
@@ -14,5 +16,6 @@ namespace ImprovedCustomerService.Data.Dto
         public int? AddressId { get; set; }
 
         public AddressDto Address { get; set; }
+        public List<ContactSaveDto> Contacts { get; set; }
     }
 }

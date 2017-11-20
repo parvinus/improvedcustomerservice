@@ -8,7 +8,7 @@ namespace ImprovedCustomerService.Services.CustomerService
 {
     public interface ICustomerService
     {
-        ResponseModel GetAll();
+        //ResponseModel GetAll();
 
         ResponseModel GetById(int customerId);
 

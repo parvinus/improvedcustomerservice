@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using ImprovedCustomerService.Data.Dto;
+using ImprovedCustomerService.Data.Model;
 using ImprovedCustomerService.Data.Repository;
 
 namespace ImprovedCustomerService.Data.Validation
@@ -26,11 +27,10 @@ namespace ImprovedCustomerService.Data.Validation
 
         private bool ValidateId(int? customerId)
         {
-            return true;
-            //using (var repo = new CustomerRepository())
-            //{
-            //    return customerId != null && repo.GetById(customerId.Value) != null;
-            //}
+            using (var repo = new Repository<Customer>(new CustomerServiceDbEntities()))
+            {
+                return customerId != null && repo.GetById(customerId.Value) != null;
+            }
         }
     }
 }

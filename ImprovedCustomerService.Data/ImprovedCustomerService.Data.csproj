@@ -72,9 +72,14 @@
   <ItemGroup>
     <Compile Include="Configuration\AutomapperConfiguration.cs" />
     <Compile Include="Dto\AddressDto.cs" />
+    <Compile Include="Dto\Contacts\ContactResponseDto.cs" />
+    <Compile Include="Dto\Contacts\ContactSaveDto.cs" />
     <Compile Include="Dto\CustomerResponseDto.cs" />
     <Compile Include="Dto\CustomerSaveDto.cs" />
     <Compile Include="Model\Address.cs">
+      <DependentUpon>CustomerServiceDb.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Contact.cs">
       <DependentUpon>CustomerServiceDb.tt</DependentUpon>
     </Compile>
     <Compile Include="Model\Customer.cs">
@@ -99,6 +104,7 @@
     <Compile Include="Repository\IRepository.cs" />
     <Compile Include="Repository\Repository.cs" />
     <Compile Include="Validation\AddressDtoValidator.cs" />
+    <Compile Include="Validation\ContactSaveDtoValidator.cs" />
     <Compile Include="Validation\CustomerSaveDtoValidator.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -120,6 +126,7 @@
       <LastGenOutput>CustomerServiceDb.Context.cs</LastGenOutput>
       <DependentUpon>CustomerServiceDb.edmx</DependentUpon>
     </Content>
+    <Content Include="Model\CustomerServiceDb.edmx.sql" />
     <Content Include="Model\CustomerServiceDb.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <DependentUpon>CustomerServiceDb.edmx</DependentUpon>

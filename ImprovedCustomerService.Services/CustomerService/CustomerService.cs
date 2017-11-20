@@ -28,11 +28,11 @@ namespace ImprovedCustomerService.Services.CustomerService
         #endregion
 
         #region methods
-        public ResponseModel GetAll()
-        {
-            var allCustomers = Mapper.Map<IEnumerable<CustomerResponseDto>>(_repository.GetAll());
-            return new ResponseModel {Result = allCustomers};
-        }
+        //public ResponseModel GetAll()
+        //{
+        //    var allCustomers = Mapper.Map<IEnumerable<CustomerResponseDto>>(_repository.GetAll());
+        //    return new ResponseModel {Result = allCustomers};
+        //}
 
         /// <summary>
         ///     gets a customer matching the given id from the database, converts the customer entity to a dto and forms
@@ -56,12 +56,8 @@ namespace ImprovedCustomerService.Services.CustomerService
         public ResponseModel Remove(int customerId)
         {
             var payload = new ResponseModel{Message = "success"};
-            var recordsRemoved = _repository.Remove(customerId);
-
-            if (recordsRemoved == 0)
-            {
-                payload.Message = "request failed";
-            }
+            _repository.Remove(customerId);
+            _repository.Save();
 
             return payload;
         }
@@ -71,7 +67,7 @@ namespace ImprovedCustomerService.Services.CustomerService
             //var customerValidator = new CustomerSaveDtoValidator();
             //var validationResult = customerValidator.Validate(customer);
             var responsePayload = new ResponseModel();
-            _repository.Create(customer);
+            _repository.Create(Mapper.Map<Customer>(customer));
             //var message = rowsAdded > 0 ? "success" : "failed to create customer";
 
             responsePayload.Message = "success";
@@ -112,7 +108,7 @@ namespace ImprovedCustomerService.Services.CustomerService
             //    return response;
             //}
 
-            _repository.Update(customer);
+            _repository.Update(Mapper.Map<Customer>(customer));
             response.Result = null;
             response.Message = "success";
 
