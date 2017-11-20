@@ -11,29 +11,31 @@ namespace ImprovedCustomerService.Data.Repository
     public class Repository<TEntity> : IRepository<TEntity>, IDisposable where TEntity : class
     {
         private readonly CustomerServiceDbEntities _context;
+        private readonly DbSet<TEntity> _dbSet;
 
         public Repository(CustomerServiceDbEntities context)
         {
             _context = context;
+            _dbSet = context.Set<TEntity>();
         }
 
         public TEntity GetById(object id)
         {
-            return _context.Set<TEntity>().Find(id);
+            return _dbSet.Find(id);
         }
 
         public void Remove(int id)
         {
             var targetEntity = GetById(id);
-            _context.Set<TEntity>().Remove(targetEntity);
+            _dbSet.Remove(targetEntity);
 
-            _context.SaveChanges();
+            //_context.SaveChanges();
         }
 
         public void Create(TEntity entityToCreate)
         {
-            _context.Set<TEntity>().Add(entityToCreate);
-            _context.SaveChanges();
+            _dbSet.Add(entityToCreate);
+            //_context.SaveChanges();
         }
 
         public void Update(TEntity entityToUpdate)
@@ -41,11 +43,11 @@ namespace ImprovedCustomerService.Data.Repository
             if (entityToUpdate == null)
                 return;
 
-            var dbSet = _context.Set<TEntity>();
-            dbSet.Attach(entityToUpdate);
+            //var dbSet = _context.Set<TEntity>();
+            _dbSet.Attach(entityToUpdate);
 
             _context.Entry(entityToUpdate).State = EntityState.Modified;
-            _context.SaveChanges();
+            //_context.SaveChanges();
         }
 
         public int Save()

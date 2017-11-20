@@ -28,11 +28,6 @@ namespace ImprovedCustomerService.Services.CustomerService
         #endregion
 
         #region methods
-        //public ResponseModel GetAll()
-        //{
-        //    var allCustomers = Mapper.Map<IEnumerable<CustomerResponseDto>>(_repository.GetAll());
-        //    return new ResponseModel {Result = allCustomers};
-        //}
 
         /// <summary>
         ///     gets a customer matching the given id from the database, converts the customer entity to a dto and forms
@@ -64,55 +59,39 @@ namespace ImprovedCustomerService.Services.CustomerService
 
         public ResponseModel Create(CustomerSaveDto customer)
         {
-            //var customerValidator = new CustomerSaveDtoValidator();
-            //var validationResult = customerValidator.Validate(customer);
+            //TODO: validate model using modelstate
+
             var responsePayload = new ResponseModel();
+
             _repository.Create(Mapper.Map<Customer>(customer));
-            //var message = rowsAdded > 0 ? "success" : "failed to create customer";
+            _repository.Save();
 
             responsePayload.Message = "success";
 
             return responsePayload;
         }
 
-        #endregion
-
-        //public HttpResponseMessage Create(CustomerSaveDto customer)
-        //{
-        //    var customerValidator = new CustomerSaveDtoValidator();
-        //    var validationResult = customerValidator.Validate(customer);
-
-        //    var rowsAdded = 0;
-
-        //    if (validationResult?.IsValid == true)
-        //        rowsAdded = _repository.Create(customer);
-        //    var message = rowsAdded > 0 ? "success" : "failed to create customer";
-        //    return new HttpResponseMessage();
-        //    //return ResponseHandler.GetResponse(_request, HttpStatusCode.OK, message);
-
-        //}
-
         public ResponseModel Update(CustomerSaveDto customer)
         {
+            //TODO: validate model using modelstate
+
             var response = new ResponseModel();
 
             //validate the incoming customer payload
             var customerValidator = new CustomerSaveDtoValidator();
             var validationResult = customerValidator.Validate(customer);
 
-            //if (!validationResult.IsValid)
-            //{
-            //    response.Errors = TypeConversion.ValidationFailureToString(validationResult.Errors);
-            //    response.Message = "failed to update";
-
-            //    return response;
-            //}
-
             _repository.Update(Mapper.Map<Customer>(customer));
+            _repository.Save();
+
             response.Result = null;
             response.Message = "success";
 
             return response;
         }
+
+        #endregion
+
+
     }
 }
