@@ -6,6 +6,8 @@ using ImprovedCustomerService.Core.Handlers;
 using ImprovedCustomerService.Data.Dto;
 using ImprovedCustomerService.Data.Model;
 using ImprovedCustomerService.Data.Repository;
+using ImprovedCustomerService.Data.UnitOfWork;
+using ImprovedCustomerService.Data.Validation;
 
 namespace ImprovedCustomerService.Services.CustomerService
 {
@@ -13,13 +15,13 @@ namespace ImprovedCustomerService.Services.CustomerService
     public class CustomerService : ICustomerService
     {
         #region fields
-        private readonly IRepository<Customer> _repository;
+        private readonly IUnitOfWork _unitOfWork;
         #endregion
 
         #region constructor(s)
-        public CustomerService(IRepository<Customer> repository)
+        public CustomerService(IUnitOfWork unitOfWork)
         {
-            _repository = repository;
+            _unitOfWork = unitOfWork;
         }
         #endregion
 
@@ -40,7 +42,7 @@ namespace ImprovedCustomerService.Services.CustomerService
 
             /*  attempt to retrieve customers whose addresses fully match the state provided and at least partially match the city.
                 sort the results to include full matches first, then by index of first match on the city. */
-            var result = _repository.Get(c => c.Address.State == searchState && c.Address.City.IndexOf(searchCity) >= 0)
+            var result = _unitOfWork.CustomerRepository.Get(c => c.Address.State == searchState && c.Address.City.IndexOf(searchCity) >= 0)
                 .OrderBy(c => c.Address.City.IndexOf(searchCity));
 
             /* check if search results were found and populate the response model accordingly */
@@ -65,7 +67,7 @@ namespace ImprovedCustomerService.Services.CustomerService
         /// <returns></returns>
         public ResponseModel GetById(int customerId)
         {
-            var model = new ResponseModel { Result = Mapper.Map<CustomerResponseDto>(_repository.GetById(customerId)) };
+            var model = new ResponseModel { Result = Mapper.Map<CustomerResponseDto>(_unitOfWork.CustomerRepository.GetById(customerId)) };
 
             if (model.Result == null)
             {
@@ -84,10 +86,10 @@ namespace ImprovedCustomerService.Services.CustomerService
         public ResponseModel Remove(int customerId)
         {
             /* attempt to remove the customer matching a given id */
-            _repository.Remove(customerId);
+            _unitOfWork.CustomerRepository.Remove(customerId);
 
             /* commit the transaction and record the number of affected rows */
-            var rowsDeleted = _repository.Save();
+            var rowsDeleted = _unitOfWork.SaveChanges();
 
             /*check if any rows were deleted and create the response model accordingly */
             return new ResponseModel
@@ -96,35 +98,64 @@ namespace ImprovedCustomerService.Services.CustomerService
             };
         }
 
+        /// <summary>
+        ///     attempts to create a new customer based on the model provided
+        /// </summary>
+        /// <param name="customer">a JSON-serialized customer model containing all info needed to create a customer</param>
+        /// <returns>a response model containing the results of the validation/transaction</returns>
         public ResponseModel Create(CustomerSaveDto customer)
         {
             //TODO: validate model using modelstate
 
             var responsePayload = new ResponseModel();
 
-            _repository.Create(Mapper.Map<Customer>(customer));
-            _repository.Save();
+            _unitOfWork.CustomerRepository.Create(Mapper.Map<Customer>(customer));
+            _unitOfWork.SaveChanges();
 
             responsePayload.Message = "success";
 
             return responsePayload;
         }
 
+        /// <summary>
+        ///     attempts to update an existing customer based on the model provided
+        /// </summary>
+        /// <param name="customer">a JSON-serialized customer model containing updated info with an Id that matches an existing customer </param>
+        /// <returns>a response model containing the results of the validation/transaction. </returns>
         public ResponseModel Update(CustomerSaveDto customer)
         {
-            //TODO: validate model using modelstate
+            /* create empty response model.  will return no matter what happens next */
+            var response = new ResponseModel(new List<string>());
 
-            var response = new ResponseModel();
+            var customerEntityToUpdate = _unitOfWork.CustomerRepository.GetById(customer.Id);
 
-            //validate the incoming customer payload
-            //var customerValidator = new CustomerSaveDtoValidator();
-            //var validationResult = customerValidator.Validate(customer);
+            if (customerEntityToUpdate == null)
+            {
+                response.Message = "update failed.";
+                response.Errors.Add($"no customer matching id {customer.Id} was found.");
+                return response;
+            }
 
-            _repository.Update(Mapper.Map<Customer>(customer));
-            _repository.Save();
+            customerEntityToUpdate.Age = customer.Age;
+            customerEntityToUpdate.Email = customer.Email;
+            customerEntityToUpdate.FirstName = customer.FirstName;
+            customerEntityToUpdate.LastName = customer.LastName;
+
+            var addressEntityToUpdate = customerEntityToUpdate.Address;
+
+            addressEntityToUpdate.Street = customer.Address.Street;
+            addressEntityToUpdate.Unit = customer.Address.Unit;
+            addressEntityToUpdate.City = customer.Address.City;
+            addressEntityToUpdate.State = customer.Address.State;
+            addressEntityToUpdate.PostalCode = customer.Address.PostalCode;
+
+            customerEntityToUpdate.Address = addressEntityToUpdate;
+
+            _unitOfWork.CustomerRepository.Update(customerEntityToUpdate);
+            var result = _unitOfWork.SaveChanges();
 
             response.Result = null;
-            response.Message = "success";
+            response.Message = result > 0 ? "success" : "no records updated";
 
             return response;
         }

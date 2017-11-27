@@ -18,6 +18,10 @@ namespace ImprovedCustomerService.Data.Repository
             _dbSet = context.Set<TEntity>();
         }
 
+        public Repository()
+        {
+        }
+
         public TEntity GetById(object id)
         {
             return _dbSet.Find(id);

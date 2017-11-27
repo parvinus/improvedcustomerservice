@@ -1,5 +1,6 @@
 using ImprovedCustomerService.Data.Model;
 using ImprovedCustomerService.Data.Repository;
+using ImprovedCustomerService.Data.UnitOfWork;
 using ImprovedCustomerService.Services.ContactService;
 using ImprovedCustomerService.Services.CustomerService;
 
@@ -62,14 +63,19 @@ namespace ImprovedCustomerService.Api.App_Start
         }
 
         /// <summary>
-        /// Load your modules or register your services here!
+        ///     configure interface-to-implementation mappings so that Ninject can perform dependency injections
         /// </summary>
         /// <param name="kernel">The kernel.</param>
         private static void RegisterServices(IKernel kernel)
         {
+            /* bind repository interface to customer and contact-specific concrete implementations */
             kernel.Bind<IRepository<Customer>>().To<Repository<Customer>>().InRequestScope();
             kernel.Bind<IRepository<Contact>>().To<Repository<Contact>>().InRequestScope();
 
+            /* bind IUnitOfWork interface to concrete implementation */
+            kernel.Bind<IUnitOfWork>().To<UnitOfWork>().InRequestScope();
+
+            /* bind customer and contact service interfaces to their implementations */
             kernel.Bind<ICustomerService>().To<CustomerService>().InRequestScope();
             kernel.Bind<IContactService>().To<ContactService>().InRequestScope();
         }        
