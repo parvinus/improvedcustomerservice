@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using AutoMapper;
 using ImprovedCustomerService.Core.Handlers;
 using ImprovedCustomerService.Data.Dto.Contacts;
@@ -11,25 +9,28 @@ using ImprovedCustomerService.Data.Repository;
 
 namespace ImprovedCustomerService.Services.ContactService
 {
+    [SuppressMessage("ReSharper", "StringIndexOfIsCultureSpecific.1")]
     public class ContactService : IContactService
     {
         private readonly IRepository<Contact> _repository;
+        private readonly IRepository<Customer> _customerRepository;
 
-        public ContactService(IRepository<Contact> repository)
+        public ContactService(IRepository<Contact> repository, IRepository<Customer> customerRepository)
         {
             _repository = repository;
+            _customerRepository = customerRepository;
         }
 
         public ResponseModel GetById(int contactId)
         {
             //create a new response model and attempt to get the requested customer from our repo
-            var responseModel = new ResponseModel {Errors = new List<string>()};
+            var responseModel = new ResponseModel();
             var contact = _repository.GetById(contactId);
 
             //check in the event no match was found and add the appropriate error/message
             if (contact == null)
             {
-                responseModel.Errors.Add($"{contactId} does not match an existing contact");
+                responseModel.Errors = new List<string> {$"{contactId} does not match an existing contact"};
                 responseModel.Message = "failed to get contact";
             }
 
@@ -39,19 +40,55 @@ namespace ImprovedCustomerService.Services.ContactService
             return responseModel;
         }
 
+        public ResponseModel GetBySearch(string searchInput)
+        {
+            /* create an empty response model, we'll use it no matter what */
+            var responsePayload = new ResponseModel(new List<string>());
+
+            /* attempt to get matches for the search input, as  well as sort the search results.*/
+            var payload = _repository.Get(c =>
+                c.FirstName.IndexOf(searchInput) > -1 ||
+                c.LastName.IndexOf(searchInput) > -1 ||
+                c.EmailAddress.IndexOf(searchInput) > -1)
+                .OrderBy(c => c.FirstName.IndexOf(searchInput))
+                .ThenBy(c => c.LastName.IndexOf(searchInput))
+                .ThenBy(c => c.EmailAddress.IndexOf(searchInput));
+
+            /* assign the appropriate response message and add the search results payload */
+            responsePayload.Message = payload.Any() ? "success" : "no results found";
+            responsePayload.Result = payload;
+
+            return responsePayload;
+        }
+
         public ResponseModel Create(ContactSaveDto contact)
         {
-            //convert the incoming contact dto to a usable entity and create a skeleton response model
-            var contactEntity = Mapper.Map<Contact>(contact);
-            var responseModel = new ResponseModel();
+            var responseModel = new ResponseModel{Errors = new List<string>()};
 
-            //attempt to create the contact and add the appropriate message to the response model
-            _repository.Create(contactEntity);
-            if (_repository.Save() == 0)
+            //check for a provided contact id, which is invalid.  new contacts cannot have an id specified.
+            if (contact.ContactId != null)
+                responseModel.Errors.Add("ContactId must be null when creating a new contact");
+
+            //validate the customer id provided.  a contact must be assigned to a valid customer.
+            if (_customerRepository.GetById(contact.CustomerId) == null)
+                responseModel.Errors.Add("customer id does not exist");
+
+            if (responseModel.Errors.Count == 0)
             {
-                responseModel.Message = "success";
+                //convert the incoming contact dto to a usable entity and create a skeleton response model
+                var contactEntity = Mapper.Map<Contact>(contact);
+
+                //attempt to create the contact and add the appropriate message to the response model
+                _repository.Create(contactEntity);
+
+                //reset, if necessary, other contacts' IsPrimary flags
+                if(contactEntity.IsPrimary)
+                    UnsetPrimaryContact(contactEntity.ContactId, contactEntity.CustomerId);
+
+                if (_repository.Save() > 0)
+                    responseModel.Message = "success";
+                else responseModel.Errors.Add("failed to create contact");
             }
-            else responseModel.Errors = new List<string>{"failed to create contact"};
 
             return responseModel;
         }
@@ -59,7 +96,18 @@ namespace ImprovedCustomerService.Services.ContactService
         public ResponseModel Remove(int contactId)
         {
             _repository.Remove(contactId);
-            var responseModel = new ResponseModel {Message = "success"};
+            var result = _repository.Save();
+            var responseModel = new ResponseModel();
+
+            if (result > 0)
+            {
+                responseModel.Message = "success";
+            }
+            else
+            {
+                responseModel.Errors = new List<string>{"contact id provided doesn't exist"};
+                responseModel.Message = "failed to remove contact";
+            }
 
             return responseModel;
         }
@@ -71,7 +119,10 @@ namespace ImprovedCustomerService.Services.ContactService
             //can't tell from modelstate validation if a contactid was provided in the first place.  uses the same model as create which expects a null
             //contact id.
             if (updatedContactEntity == null)
-                return new ResponseModel {Errors = new List<string> {"ContactId is a required field"}};
+                return new ResponseModel {Errors = new List<string> {"ContactId provided was invalid"}};
+
+            if(_customerRepository.GetById(contact.CustomerId) == null)
+                return new ResponseModel { Errors = new List<string> { "CustomerId provided was invalid" } };
 
             //update the values of our retrieved entity.
             updatedContactEntity.AlternatePhone = contact.AlternatePhone;
@@ -80,14 +131,36 @@ namespace ImprovedCustomerService.Services.ContactService
             updatedContactEntity.LastName = contact.LastName;
             updatedContactEntity.PrimaryPhone = contact.PrimaryPhone;
 
-            //additionally make sure no other entry associated with this customer is primary
+            //we need to reset other primary contacts (potentially) if the assigned customer changes or the contact wasn't previously primary
+            //but only if we are currently being set to primary.
+            if ((!updatedContactEntity.IsPrimary || updatedContactEntity.CustomerId != contact.CustomerId) && contact.IsPrimary)
+                UnsetPrimaryContact(contact.ContactId, contact.CustomerId);
+
             updatedContactEntity.IsPrimary = contact.IsPrimary;
+            updatedContactEntity.CustomerId = contact.CustomerId;
 
             //perform the db update
             _repository.Update(updatedContactEntity);
+            var result = _repository.Save();
 
-            //create and retur the successful response payload.
-            return new ResponseModel {Message = "success"};
+            //create and return the successful response payload.
+            return new ResponseModel {Message = result > 0 ? "success" : "no records updated."};
+        }
+
+        private void UnsetPrimaryContact(int? newPrimaryContactId, int customerId)
+        {
+            //look up the contact matching the given customer id and NOT matching the given contact id and where IsPrimary is set to true
+            var contactToUpdate = _repository.Get(c => c.ContactId != newPrimaryContactId && c.CustomerId == customerId && c.IsPrimary).SingleOrDefault();
+
+            //check if a contact was found to update
+            if (contactToUpdate == null)
+                return;
+
+            //update the contact to not be the primary contact.
+            contactToUpdate.IsPrimary = false;
+            _repository.Update(contactToUpdate);
+
+            //intentionally not saving the transaction here to avoid accidental commit of data changed before this method is called.
         }
     }
 }

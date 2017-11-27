@@ -1,5 +1,4 @@
 ﻿using System.Web.Http;
-using FluentValidation.WebApi;
 using ImprovedCustomerService.Core.Filters;
 
 namespace ImprovedCustomerService.Api

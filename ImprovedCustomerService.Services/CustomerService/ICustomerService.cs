@@ -1,14 +1,11 @@
-﻿using System.Collections.Generic;
-using System.Net.Http;
-using ImprovedCustomerService.Core.Handlers;
+﻿using ImprovedCustomerService.Core.Handlers;
 using ImprovedCustomerService.Data.Dto;
-using ImprovedCustomerService.Data.Model;
 
 namespace ImprovedCustomerService.Services.CustomerService
 {
     public interface ICustomerService
     {
-        //ResponseModel GetAll();
+        ResponseModel GetByAddressSearch(string searchCity, string searchState);
 
         ResponseModel GetById(int customerId);
 

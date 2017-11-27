@@ -13,6 +13,7 @@ namespace ImprovedCustomerService.Api.App_Start
     using Ninject;
     using Ninject.Web.Common;
     using System;
+    using System.Data.Entity;
     using System.Web;
 
     public static class NinjectWebCommon 

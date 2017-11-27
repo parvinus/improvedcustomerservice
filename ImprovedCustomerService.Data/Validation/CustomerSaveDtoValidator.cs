@@ -1,7 +1,5 @@
 ﻿using FluentValidation;
 using ImprovedCustomerService.Data.Dto;
-using ImprovedCustomerService.Data.Model;
-using ImprovedCustomerService.Data.Repository;
 
 namespace ImprovedCustomerService.Data.Validation
 {
@@ -14,7 +12,7 @@ namespace ImprovedCustomerService.Data.Validation
 
             //if the customer id provided is not null, it must exist in the database.
             //a null id is allowed in the case of creating new customers.
-            RuleFor(c => c.Id).Must(ValidateId).When(c => c?.Id != null).WithMessage("customer doesn't exist with that Id");
+            //RuleFor(c => c.Id).Must(ValidateId).When(c => c?.Id != null).WithMessage("customer doesn't exist with that Id");
 
             //an age is required and must be within the range 10-20
             RuleFor(c => c.Age).NotEmpty().GreaterThan(9).LessThan(21).WithMessage("age is required.");
@@ -25,12 +23,12 @@ namespace ImprovedCustomerService.Data.Validation
 
         }
 
-        private bool ValidateId(int? customerId)
-        {
-            using (var repo = new Repository<Customer>(new CustomerServiceDbEntities()))
-            {
-                return customerId != null && repo.GetById(customerId.Value) != null;
-            }
-        }
+        //private bool ValidateId(int? customerId)
+        //{
+        //    using (var repo = new Repository<Customer>(new CustomerServiceDbEntities()))
+        //    {
+        //        return customerId != null && repo.GetById(customerId.Value) != null;
+        //    }
+        //}
     }
 }

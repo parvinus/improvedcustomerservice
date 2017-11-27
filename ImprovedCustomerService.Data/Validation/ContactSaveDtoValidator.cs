@@ -1,7 +1,5 @@
 ﻿using FluentValidation;
 using ImprovedCustomerService.Data.Dto.Contacts;
-using ImprovedCustomerService.Data.Model;
-using ImprovedCustomerService.Data.Repository;
 
 namespace ImprovedCustomerService.Data.Validation
 {
@@ -14,27 +12,8 @@ namespace ImprovedCustomerService.Data.Validation
 
             RuleFor(c => c.LastName).NotEmpty().WithMessage("Last name is a required field.");
 
-            RuleFor(c => c.EmailAddress).NotEmpty().EmailAddress();
-
-            RuleFor(c => c.ContactId).Must(validateContactId).WithMessage("invalid contact id").When(c => c.ContactId != null);
-
-            RuleFor(c => c.CustomerId).Must(validateCustomerId).WithMessage("customer id doesn't exist");
-        }
-
-        private bool validateCustomerId(int id)
-        {
-            using (var db = new CustomerServiceDbEntities())
-            {
-                return db.Customers.Find(id) != null;
-            }
-        }
-
-        private bool validateContactId(int? id)
-        {
-            using (var db = new CustomerServiceDbEntities())
-            {
-                return db.Contacts.Find(id) != null;
-            }
+            RuleFor(c => c.EmailAddress).NotEmpty().WithMessage("Email Address is a required field")
+                .EmailAddress().WithMessage("Email Address provided is invalid");
         }
     }
 }

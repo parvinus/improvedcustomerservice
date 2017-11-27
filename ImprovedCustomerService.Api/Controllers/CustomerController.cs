@@ -16,6 +16,16 @@ namespace ImprovedCustomerService.Api.Controllers
             _service = customerService;
         }
 
+        [Route("GetByAddressSearch")]
+        [HttpGet]
+        public HttpResponseMessage GetByAddressSearch(string searchCity, string searchState)
+        {
+            var payload = _service.GetByAddressSearch(searchCity, searchState);
+
+            return Request.CreateResponse(payload.Errors.Count > 0 ? HttpStatusCode.BadRequest : HttpStatusCode.OK,
+                payload);
+        }
+
         /// <summary>
         ///     searches the db for the customer matching the given id and returns it if possible
         /// </summary>

@@ -2,8 +2,7 @@
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
-using AutoMapper;
-using ImprovedCustomerService.Data.Dto;
+using System.Linq.Expressions;
 using ImprovedCustomerService.Data.Model;
 
 namespace ImprovedCustomerService.Data.Repository
@@ -24,18 +23,20 @@ namespace ImprovedCustomerService.Data.Repository
             return _dbSet.Find(id);
         }
 
+        public IEnumerable<TEntity> Get(Expression<Func<TEntity, bool>> query)
+        {
+            return _dbSet.Where(query).AsEnumerable();
+        }
+
         public void Remove(int id)
         {
             var targetEntity = GetById(id);
             _dbSet.Remove(targetEntity);
-
-            //_context.SaveChanges();
         }
 
         public void Create(TEntity entityToCreate)
         {
             _dbSet.Add(entityToCreate);
-            //_context.SaveChanges();
         }
 
         public void Update(TEntity entityToUpdate)
@@ -43,11 +44,8 @@ namespace ImprovedCustomerService.Data.Repository
             if (entityToUpdate == null)
                 return;
 
-            //var dbSet = _context.Set<TEntity>();
             _dbSet.Attach(entityToUpdate);
-
             _context.Entry(entityToUpdate).State = EntityState.Modified;
-            //_context.SaveChanges();
         }
 
         public int Save()

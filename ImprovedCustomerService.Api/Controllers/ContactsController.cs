@@ -1,7 +1,4 @@
 ﻿using ImprovedCustomerService.Services.ContactService;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
@@ -25,6 +22,16 @@ namespace ImprovedCustomerService.Api.Controllers
         {
             var payload = _contactService.GetById(contactId);
             return Request.CreateResponse(HttpStatusCode.OK, payload);
+        }
+
+        [Route("GetBySearch")]
+        [HttpGet]
+        public HttpResponseMessage GetBySearch(string searchInput)
+        {
+            var payload = _contactService.GetBySearch(searchInput);
+            var statusCode = payload.Errors == null ? HttpStatusCode.OK : HttpStatusCode.BadRequest;
+
+            return Request.CreateResponse(statusCode, payload);
         }
 
         [Route("Create")]
