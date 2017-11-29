@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Data.Entity;
 using ImprovedCustomerService.Data.Model;
 using ImprovedCustomerService.Data.Repository;
 
@@ -11,7 +7,7 @@ namespace ImprovedCustomerService.Data.UnitOfWork
     public class UnitOfWork : IUnitOfWork
     {
         #region internal fields
-        private readonly CustomerServiceDbEntities _context;
+        private readonly DbContext _context;
         #endregion
 
         #region properties
@@ -20,7 +16,7 @@ namespace ImprovedCustomerService.Data.UnitOfWork
         #endregion
 
         #region constructor(s)
-        public UnitOfWork(CustomerServiceDbEntities context)
+        public UnitOfWork(DbContext context)
         {
             _context = context;
 

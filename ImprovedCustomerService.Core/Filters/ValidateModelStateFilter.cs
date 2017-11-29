@@ -11,7 +11,7 @@ namespace ImprovedCustomerService.Core.Filters
     {
         public override void OnActionExecuting(HttpActionContext actionContext)
         {
-            /* no need to do anything if the modelstate is valid for htis context */
+            /* no need to do anything if the modelstate is valid for this context */
             if (actionContext.ModelState.IsValid) return;
 
             /* at this point the state is invalid.  get the list of errors from modelstate and convert it to a list of strings */

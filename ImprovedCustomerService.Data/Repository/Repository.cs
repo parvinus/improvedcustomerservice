@@ -3,24 +3,27 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using System.Linq.Expressions;
-using ImprovedCustomerService.Data.Model;
 
 namespace ImprovedCustomerService.Data.Repository
 {
     public class Repository<TEntity> : IRepository<TEntity>, IDisposable where TEntity : class
     {
-        private readonly CustomerServiceDbEntities _context;
-        private readonly DbSet<TEntity> _dbSet;
+        private readonly DbContext _context;
+        private readonly IDbSet<TEntity> _dbSet;
 
-        public Repository(CustomerServiceDbEntities context)
+        public Repository(DbContext context)
         {
             _context = context;
             _dbSet = context.Set<TEntity>();
         }
 
-        public Repository()
+        public Repository(DbContext context, IDbSet<TEntity> dbSet)
         {
+            _context = context;
+            _dbSet = dbSet ?? context.Set<TEntity>();
         }
+
+        public Repository(){}
 
         public TEntity GetById(object id)
         {

@@ -1,67 +1,72 @@
-﻿using NUnit.Framework;
-using ImprovedCustomerService.Data.Repository;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System;
+using System.Data.Entity;
 using ImprovedCustomerService.Data.Model;
-using ImprovedCustomerService.Data.UnitOfWork;
+using ImprovedCustomerService.Data.Repository;
+using ImprovedCustomerService.Tests.MockRepository;
 using Moq;
+using NUnit.Framework;
 
 namespace ImprovedCustomerService.Data.Repository.Tests
 {
-    [TestFixture()]
+    [TestFixture]
     public class RepositoryTests
     {
-        private IUnitOfWork _unitOfWork;
+        #region private fields
 
-        public void RepositoryTest()
-        {
-            var context = new CustomerServiceDbEntities();
-            _unitOfWork = new UnitOfWork.UnitOfWork(context);
-        }
+        private IRepository<Customer> _repository;
+        #endregion
 
-        [Test()]
+        [Test]
         public void GetByIdTest()
         {
-            Mock<IRepository<Customer>> mock = new Mock<IRepository<Customer>>();
-            mock.Setup(repo => repo);
+            var mockRepository = new Mock<MockRepository<Customer>>();
+            var customer = new Customer
+            {
+                Address = null,
+                Age = 15,
+                Email = "im@dabes.com",
+                FirstName = "Im",
+                LastName = "Dabes",
+                Id = 1,
+                CreatedOn = DateTime.UtcNow
+            };
 
-            mock.Verify(r => r != null);
+            mockRepository.Object.Create(customer);
+            //mockRepository.S
+            mockRepository.Setup(m => m.GetById(1)).Returns(customer);
         }
 
-        [Test()]
+        [Test]
         public void GetTest()
         {
 
         }
 
-        [Test()]
+        [Test]
         public void RemoveTest()
         {
 
         }
 
-        [Test()]
+        [Test]
         public void CreateTest()
         {
 
         }
 
-        [Test()]
+        [Test]
         public void UpdateTest()
         {
 
         }
 
-        [Test()]
+        [Test]
         public void SaveTest()
         {
 
         }
 
-        [Test()]
+        [Test]
         public void DisposeTest()
         {
 

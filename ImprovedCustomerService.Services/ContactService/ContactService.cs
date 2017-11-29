@@ -5,7 +5,6 @@ using AutoMapper;
 using ImprovedCustomerService.Core.Handlers;
 using ImprovedCustomerService.Data.Dto.Contacts;
 using ImprovedCustomerService.Data.Model;
-using ImprovedCustomerService.Data.Repository;
 using ImprovedCustomerService.Data.UnitOfWork;
 
 namespace ImprovedCustomerService.Services.ContactService
@@ -52,8 +51,12 @@ namespace ImprovedCustomerService.Services.ContactService
             var payload = _unitOfWork.ContactRepository.Get(c =>
                 c.FirstName.IndexOf(searchInput) > -1 ||
                 c.LastName.IndexOf(searchInput) > -1 ||
-                c.EmailAddress.IndexOf(searchInput) > -1)
-                .OrderBy(c => c.FirstName.IndexOf(searchInput))
+                c.EmailAddress.IndexOf(searchInput) > -1);
+
+            payload = payload.OrderBy(c => c.FirstName.StartsWith(searchInput))
+                .ThenBy(c => c.LastName.StartsWith(searchInput))
+                .ThenBy(c => c.EmailAddress.StartsWith(searchInput))
+                .ThenBy(c => c.FirstName.IndexOf(searchInput))
                 .ThenBy(c => c.LastName.IndexOf(searchInput))
                 .ThenBy(c => c.EmailAddress.IndexOf(searchInput));
 

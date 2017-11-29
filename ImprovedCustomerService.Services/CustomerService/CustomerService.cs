@@ -5,9 +5,7 @@ using AutoMapper;
 using ImprovedCustomerService.Core.Handlers;
 using ImprovedCustomerService.Data.Dto;
 using ImprovedCustomerService.Data.Model;
-using ImprovedCustomerService.Data.Repository;
 using ImprovedCustomerService.Data.UnitOfWork;
-using ImprovedCustomerService.Data.Validation;
 
 namespace ImprovedCustomerService.Services.CustomerService
 {
@@ -42,8 +40,11 @@ namespace ImprovedCustomerService.Services.CustomerService
 
             /*  attempt to retrieve customers whose addresses fully match the state provided and at least partially match the city.
                 sort the results to include full matches first, then by index of first match on the city. */
-            var result = _unitOfWork.CustomerRepository.Get(c => c.Address.State == searchState && c.Address.City.IndexOf(searchCity) >= 0)
-                .OrderBy(c => c.Address.City.IndexOf(searchCity));
+            var result = _unitOfWork.CustomerRepository.Get(
+                c => c.Address.State == searchState && c.Address.City.IndexOf(searchCity) >= 0);
+
+            result = result.OrderBy(c => GetOrderRank(searchCity, c.Address.City))
+                .ThenBy(c => c.Address.City);
 
             /* check if search results were found and populate the response model accordingly */
             if (result.Any())
@@ -158,6 +159,16 @@ namespace ImprovedCustomerService.Services.CustomerService
             response.Message = result > 0 ? "success" : "no records updated";
 
             return response;
+        }
+
+        private int GetOrderRank(string searchTerm, string fieldToRank)
+        {
+            /* order full matches first */
+            if (searchTerm.Equals(fieldToRank))
+                return 0;
+
+            /* order matches that start with the search term, and then order by  */
+            return fieldToRank.StartsWith(searchTerm) ? 1 : fieldToRank.IndexOf(searchTerm);
         }
 
         #endregion

@@ -72,8 +72,10 @@ namespace ImprovedCustomerService.Api.App_Start
             kernel.Bind<IRepository<Customer>>().To<Repository<Customer>>().InRequestScope();
             kernel.Bind<IRepository<Contact>>().To<Repository<Contact>>().InRequestScope();
 
+            var customerEntity = new CustomerServiceDbEntities();
+
             /* bind IUnitOfWork interface to concrete implementation */
-            kernel.Bind<IUnitOfWork>().To<UnitOfWork>().InRequestScope();
+            kernel.Bind<IUnitOfWork>().ToMethod(ctx => new UnitOfWork(customerEntity));
 
             /* bind customer and contact service interfaces to their implementations */
             kernel.Bind<ICustomerService>().To<CustomerService>().InRequestScope();

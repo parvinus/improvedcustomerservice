@@ -9,16 +9,12 @@
 
 namespace ImprovedCustomerService.Data.Model
 {
-    using System;
     using System.Data.Entity;
     using System.Data.Entity.Infrastructure;
-    
+
     public partial class CustomerServiceDbEntities : DbContext
     {
-        public CustomerServiceDbEntities()
-            : base("name=CustomerServiceDbEntities")
-        {
-        }
+        public CustomerServiceDbEntities() : base("name=CustomerServiceDbEntities"){}
     
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
